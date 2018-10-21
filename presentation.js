@@ -15,7 +15,7 @@
 
 function preload(){
 	//img_for = loadImage('./formula.png');
-	img_two = loadImage('./piproof.png');
+	img_two = loadImage('./piproof.jpg');
 }
 
 
