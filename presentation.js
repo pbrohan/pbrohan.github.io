@@ -12,12 +12,12 @@
   var n_a = 0;
   var img_for;
 
-/*
+
 function preload(){
 	img_for = loadImage('./formula.png');
 	img_two = loadImage('https://www.craig-wood.com/nick/pub/pymath/pi_geometric_proof.png');
 }
-*/
+
 
 function setup() {
   var myCanvas = createCanvas(c_x, c_y);
