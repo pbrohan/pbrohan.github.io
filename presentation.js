@@ -15,6 +15,7 @@
 /*
 function preload(){
 	img_for = loadImage('./formula.png');
+	img_two = loadImage('https://www.craig-wood.com/nick/pub/pymath/pi_geometric_proof.png');
 }
 */
 
@@ -26,7 +27,7 @@ function setup() {
   var n_y = getRndInteger(0,c_y); //Needle y
   var n_a = getRndInteger(0, TWO_PI); //Needle angle
 }
-
+	
 var framecount = 1;
 
 var shape_radius = 150;
@@ -173,7 +174,7 @@ function slide1(){
 
 function slide2(){
 	background(255);
-	text("Currently blank", 300, 300);
+	image(img_two, 250, 200);
 }
 
 function slide3(){
@@ -916,6 +917,10 @@ function slide54(){
   	}
   	strokeWeight(1);
   	noStroke();
+  	textSize(27);
+	text("π ≈", 220, 620);
+	cpi((4*dots_in/(dots_in+dots_out)).toString(), 220 + textWidth("π ≈  "), 620)
+	textSize(22);
 }
 
 function slide55(){
@@ -942,6 +947,10 @@ function slide55(){
 	maths3.style.top = "343px";
 	maths3.style.left = (textWidth("- The number of points chosen lying in the circle will be approximately N")+170)
 		.toString() + "px";
+	  textSize(27);
+	text("π ≈", 220, 620);
+	cpi((4*dots_in/(dots_in+dots_out)).toString(), 220 + textWidth("π ≈  "), 620)
+	textSize(22);
 }
 
 function slide56(){
@@ -974,10 +983,6 @@ function slide57(){
 
 function slide58(){
 	slide57();
-	textSize(27);
-	text("π ≈", 220, 620);
-	cpi((4*dots_in/(dots_in+dots_out)).toString(), 220 + textWidth("π ≈  "), 620)
-	textSize(22);
 
 }
 
@@ -1048,6 +1053,11 @@ function slide62(){
   	}
   	j += 1
   	noStroke();
+	bpi = (2*nlen*(needles.length-1))/(25*crossed);
+	textSize(27);
+	text("π ≈", 220, 630);
+	cpi(bpi.toString() ,220 + textWidth("π ≈  "), 630);
+	textSize(22);
 }
 
 function slide63(){
@@ -1081,8 +1091,8 @@ function slide65(){
 	fill(255);
 	rect(c_x-100, c_y-75, 150, 75);
 	fill(0);
-	text("N: " + needles.length.toString(),c_x - 95, c_y - 70);
-	text("M: " + crossed.toString(),c_x-95, c_y - 35);
+	text("N: " + needles.length.toString(),c_x - 95, c_y - 50);
+	text("M: " + crossed.toString(),c_x-95, c_y - 20);
 	iscross = 255;
 
 }
@@ -1104,37 +1114,69 @@ function slide66(){
 function slide67(){
 	slide66();
 	nspeed = 1;
-	bpi = (2*nlen*(needles.length-1))/(25*crossed);
-	textSize(27);
-	text("π ≈", 220, 620);
-	cpi(bpi.toString() ,220 + textWidth("π ≈  "), 620)
 	textSize(22);
 }
 
 function slide68(){
-	needles = [];
-	crossed = 0;
 	background(255);
 	textSize(30);
 	fill(0,0,150);
 	text("Buffon's Needle", 20, 30);
+	stroke(0);
+	makelines(25);
+	for (i = 1; i < needles.length; i++){
+		if (needles[i][3]) {
+			stroke(iscross, 0, 0);
+		} else {
+			stroke(0, 0, niscross);
+		}
+		newneedle(needles[i][0], needles[i][1], nlen, needles[i][2]);
+	}
+	stroke(0);
+	curr_x = c_x*5/6 + j*(n_x - c_x*5/6)/nspeed;
+	curr_y = 0 + j*(n_y)/nspeed;
+	curr_angle = j*(n_a+TWO_PI)/nspeed;
+	newneedle(curr_x,curr_y,nlen,curr_angle);
+	if (j >= nspeed){
+		j = 0;
+		if (crosses(n_y,n_y+ nlen*sin(n_a),25)){
+			crossed += 1
+		}
+		needles.push([n_x,n_y,n_a,crosses(n_y,n_y+ nlen*sin(n_a),25)])
+	n_x = getRndInteger(c_x*2/3,c_x);
+  	n_y = getRndInteger(0,c_y);
+  	n_a = getRndInteger(0,TWO_PI);
+  	}
+  	j += 1
+  	noStroke();
+	bpi = (2*nlen*(needles.length-1))/(25*crossed);
+	textSize(27);
+	text("π ≈", 220, 630);
+	cpi(bpi.toString() ,220 + textWidth("π ≈  "), 630);
+	textSize(22);
+	noStroke();
+	fill(255);
+	rect(c_x-100, c_y-75, 150, 75);
+	fill(0);
+	text("N: " + needles.length.toString(),c_x - 95, c_y - 50);
+	text("M: " + crossed.toString(),c_x-95, c_y - 20);
 	fill(0);
 	textSize(22);
 	text("○ ", 100, 110);
 	text("The problem was proposed in 1777 by the French philosopher Georges-Louis Leclerc, Comte du Buffon", 120, 90,
-		c_x - 170, 75);
+		2/3*c_x - 123, 75);
 }
 
 function slide69(){
 	slide68();
 	text("○ ", 100, 180);
-	text("In 1901 the Italian mathematician Mario Lazzerini was the first to try out Buffon's discovery.", 120, 160, c_x - 170, 75);
+	text("In 1901 the Italian mathematician Mario Lazzerini was the first to try out Buffon's discovery.", 120, 160, 2/3*c_x - 123, 75);
 }
 
 function slide70(){
 	slide69();
 	text("- ", 120, 250);
-	text("He dropped over 3,400 sticks onto the floor and counted up the number that crossed over lines",150, 230, c_x - 200, 75);
+	text("He dropped over 3,400 sticks onto the floor and counted up the number that crossed over lines",150, 230, 2/3*c_x - 150, 75);
 }
 
 function slide71(){
@@ -1146,13 +1188,13 @@ function slide71(){
 function slide72(){
 	slide71();
 	text("- ", 120, 355);
-	text("He was correct in the first 6 digits, an error of just 0.000006%",150, 355);
+	text("He was correct in the first 6 digits, an error of just 0.000006%",150, 335, 2/3*c_x - 150, 75);
 }
 
 function slide73(){
 	slide72();
-	text("○ ", 100, 390);
-	text("With computers, simulations using randomness to give a sample of results have become much easier and of increasing importance", 120, 370, c_x - 170, 75);
+	text("○ ", 100, 430);
+	text("With computers, simulations using randomness to give a sample of results have become much easier and of increasing importance", 120, 410, 2/3*c_x - 123, 110);
 }
 
 function slide74(){
