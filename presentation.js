@@ -3,7 +3,7 @@
  takes five times as long.
  Also you will get very lazy and do bad coding. Would it be significantly faster to only re-draw
  the parts of the canvas which change (and also get rid of the huge chains of functions?) Yes.
- But because nothing is broken and I don't care how fast this runs, I'm not changing it.
+ But because nothing is broken and I don't care how fast this runs, I'm not changing it
 */
   var c_x = 1024;
   var c_y = 768;
