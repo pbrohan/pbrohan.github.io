@@ -14,8 +14,8 @@
 
 
 function preload(){
-	img_for = loadImage('./formula.png');
-	img_two = loadImage('https://www.craig-wood.com/nick/pub/pymath/pi_geometric_proof.png');
+	//img_for = loadImage('./formula.png');
+	img_two = loadImage('./piproof.png');
 }
 
 
