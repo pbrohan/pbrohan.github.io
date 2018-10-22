@@ -3,7 +3,7 @@
  takes five times as long.
  Also you will get very lazy and do bad coding. Would it be significantly faster to only re-draw
  the parts of the canvas which change (and also get rid of the huge chains of functions?) Yes.
- But because nothing is broken and I don't care how fast this runs, I'm not changing it
+ But because nothing is broken and I don't care how fast this runs, I'm not changing it.
 */
   var c_x = 1024;
   var c_y = 768;
@@ -15,7 +15,7 @@
 
 function preload(){
 	//img_for = loadImage('./formula.png');
-	img_two = loadImage('./piproof.jpg');
+	//img_two = loadImage('./piproof.png');
 }
 
 
@@ -224,7 +224,10 @@ function slide3(){
 
 function slide4(){
 	background(255);
-	image(img_two, 50, 150);
+	//image(img_two, 50, 150);
+	picdiv.style.display = "inline";
+	picdiv.style.top = "100px";
+	picdiv.style.left = "50px";
 }
 
 function slide5(){
@@ -264,6 +267,7 @@ function slide6(){
 
 
 function slide7(){
+	picdiv.style.display = "none";
 	strokeWeight(1);
 	background(255);
 	textSize(30);
@@ -1223,7 +1227,8 @@ var maths1 = document.getElementById('mykatex2');
 var maths2 = document.getElementById('mykatex3');
 var maths3 = document.getElementById('mykatex4');
 var maths4 = document.getElementById('mykatex5');
-var maths5 = document.getElementById('mykatex6')
+var maths5 = document.getElementById('mykatex6');
+var picdiv = document.getElementById('picture');
 
 function draw() {
 	/*
