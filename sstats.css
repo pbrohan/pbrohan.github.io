@@ -1,0 +1,76 @@
+:root {
+	--tmaverage-color: #000;
+	--tmcoreaverage-color: #3A75C4;
+	--tmlangaverage-color: #FFC1BA;
+	--tmaesaverage-color: #A1CAFF;
+	--tmsoaverage-color: #B9CC6C;
+	--tmnoaverage-color: #ccc;
+	--grade1-color: #c8522e;
+	--grade2-color: #e68d10;
+	--grade3-color: #ede911;
+	--grade4-color: #a7cc12;
+	--grade5-color: #2bd622;
+	--grade6-color: #f03232;
+	--grade7-color: #000;
+};
+
+.tmaverage{fill: var(--tmaverage-color); color: var(--tmaverage-color);}
+.tmcoreaverage{fill: var(--tmcoreaverage-color); color: var(--tmcoreaverage-color); stroke: var(--tmcoreaverage-color);}
+/* grade colours*/
+.grade1 {background-color: var(--grade1-color);}
+.grade2 {background-color: var(--grade2-color);}
+.grade3 {background-color: var(--grade3-color);}
+.grade4 {background-color: var(--grade4-color);}  /*B*/
+.grade5 {background-color: var(--grade5-color);}  /*A*/
+.grade6 {background-color: var(--grade6-color);}  /*F*/
+.grade7 {background-color: var(--grade7-color); color: #fff;}
+
+/*grade change colours*/
+.changem7 {background-color :#f00; font-weight: bold;}
+.changem6 {background-color :var(--grade6-color);}
+.changem5 {background-color :#f55;}
+.changem4 {background-color :#f88;}
+.changem3 {background-color :#faa;}
+.changem2 {background-color :#fcc;}
+.changem1 {background-color: #fee;}
+.change0 {color: #ccc;} 
+.change1 {background-color: #efe;}
+.change2 {background-color: #cfc;}
+.change3 {background-color: #afa;}
+.change4 {background-color: #8f8;}
+.change5 {background-color: #5f5;}
+.change6 {background-color: var(--grade5-color)}
+.change7 {background-color: #0f0; color: #f00; font-weight: bold;}
+.changeblank {background-color :#fff; color:#fff;}
+
+/*Teacher grade box fonts*/
+.tgradebig {font-size:1em;}
+.tgradesmall {font-size:0.75em;}
+
+.tclasstitle{text-align:center;}
+.tsubjtitle{text-align:center;}
+
+.tabselected {background-color: #ccc;}	
+#charttitle {text-decoration: underline; font-weight: bold;}
+table {border-collapse: collapse;}
+#stutable > * > td {border: 1px solid #ccc;}
+#avrow {border-top: 2px solid #000;}
+#charts {display:flex;}
+#charts > .chart {display: inline-flex;}
+#toptabs > * > * > td{border:1px solid #bbb;}
+.tabs > * > * > td {border: 1px solid #ccc;}
+.tgradeholder > div {
+								width: 12%; 
+								min-width: 7em; 
+								height:5.5em;
+								border:1px solid #ccc; 
+								border-collapse: collapse; 
+								text-align:center;
+								overflow-wrap: break-word;}
+.tgradeholder {display:flex;
+							width: 70%;
+						   flex-wrap: wrap;}
+#teacherclassholder > div {display:flex;}
+
+
+
