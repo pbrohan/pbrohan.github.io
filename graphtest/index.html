@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" class="govuk-template">
+  <head>
+    <meta charset="utf-8">
+    <title>
+Peter's Graph Builder
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0c0c">
+
+    
+      <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico">
+      <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml">
+      <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
+      <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png">
+      <link rel="manifest" href="/assets/manifest.json">
+    
+
+    
+  <link rel="stylesheet" href="/stylesheets/main.css">
+
+    
+  </head>
+  <body class="govuk-template__body">
+    <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+    
+
+    
+      <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+
+    
+
+    
+<header class="govuk-header" data-module="govuk-header">
+  <div class="govuk-header__container govuk-width-container">
+    <div class="govuk-header__logo">
+      <a href="#" class="govuk-header__link govuk-header__link--homepage">
+        Peter&#39;s Graph Builder
+      </a>
+    </div>
+  </div>
+</header>
+
+
+    
+      <div class="govuk-width-container">
+        
+        <main class="govuk-main-wrapper" id="main-content">
+          
+  <h1 class="govuk-heading-xl">Home Page</h1>
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+
+<h3> Instructions </h3>
+<p>Click "Show table" to show the input table. Paste your data into the table. Your
+data should consist of one column which is Ecodes (I will write a better explanation
+later) and one column of values for those Ecodes. The table will automatically 
+expand to accommodate the number of rows you have.</p>
+
+<p>The page will then generate a map of the UK with each LA you have entered a 
+  valid ecode for coloured in according to the number you have written in the 
+  second column. Currently all other behaviours are unsupported and there are 
+  probably many bugs.
+</p>
+
+<details>
+  <summary>Show table</summary>
+ <div id = 'grid'></div>
+</details>
+
+Here is a map
+<div id = 'map'></div>
+
+<script type = "module">
+  import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+  // Declare the chart dimensions and margins.
+const width = 640;
+const height = 400;
+const marginTop = 20;
+const marginRight = 20;
+const marginBottom = 30;
+const marginLeft = 40;
+
+const container = document.getElementById('map');
+
+
+// Map and projection
+var projection = d3.geoMercator()
+  .scale(1300)
+  .center([0, 54]);
+var path = d3.geoPath().projection(projection);
+
+
+function draw_graph(data) {
+  // Create the SVG container.
+  const svg = d3.create("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  var ecodes = [];
+  for (let d in data) {
+    ecodes.push(data[d].ecode );
+  }
+
+  // Create a lookup table for data by ecode
+  const dataLookup = Object.fromEntries(
+    data.map(line => [
+        line.ecode.trim(), // Trim the `ecode` key if necessary
+        Object.fromEntries(
+            Object.entries(line).map(([key, value]) => 
+                typeof value === 'string' ? [key, value.trim()] : [key, value]
+            )
+        )
+    ])
+  );
+
+  // temporary easy scale
+  console.log(get_table_range(dataLookup))
+
+  var linearscale = d3.scaleSequential(get_table_range(data), d3.interpolateBlues)
+
+  d3.json("/assets/maps/LAD_2024.geojson").then(
+    (map) => {
+      // Filter features to include only those with finite bounding boxes
+      var validFeatures = map.features.filter((feature) => {
+        var truth = in_bounds(feature);
+        return in_bounds(feature)
+      });
+
+    var join_errors = [];
+
+      // left join the map with the data
+      // (this seems to do a lot of reads....)
+
+
+      // Map over validFeatures and enrich them with data if a match is found
+      validFeatures = validFeatures.flatMap(feature => {
+        const matchedData = dataLookup[feature.properties.LAD24CD];
+        if (matchedData) {
+            // Return the feature with the matched data
+            return { ...feature, data: { ...matchedData } };
+        } else {
+            // Return the feature as is
+            return feature;
+        }
+      });
+      // Draw the map
+      svg.append("g")
+        .selectAll("path")
+        .data(validFeatures)
+        .enter().append("path")
+          .attr("d", path)        
+          .style("stroke", "#000") // Black stroke for visibility
+          .style("fill", function(d) {
+            if ('data' in d) {
+              return linearscale(d.data.data)
+            } else {
+              return "none"
+            }
+              
+            }); 
+});
+
+function get_table_range(data) {
+  var min = 0, max = 0;
+  for (let d in data) {
+    if (data[d].data < min) {
+      min = data[d].data;
+    }
+    if (data[d].data > max) {
+      max = data[d].data;
+    }
+  }
+  return [min, max]
+}
+
+// Append the SVG element.
+container.innerHTML = "";
+container.append(svg.node());
+}
+
+// Check if a feature is in bounds (this is the source of much jank and points
+// to a more fundamental problem with the geojson files that I should fix later)
+function in_bounds(feature) {
+  var bounds = path.bounds(feature)
+  if (bounds[0][0] < 0 | bounds[0][1] < 0) {
+    return false
+  }
+  if (bounds[1][0] > 640 | bounds[1][1] > 480) {
+    return false
+  }
+  if (!(bounds.every((point) => point.every((coordinate) => isFinite(coordinate))))) {
+    return false
+  }
+  return true
+}
+
+    const Grid = tui.Grid;
+    const instance = new Grid({
+  usageStatistics: false, // Don't use google analytics
+  el: document.getElementById('grid'), // Container element
+  scrollX : false,
+  scrollY : false,
+  columns: [
+    {
+      header: 'Ecode',
+      name: 'ecode',
+      editor: 'text',
+    },
+    {
+      header: 'Data',
+      name: 'data',
+      editor: 'text',
+    },
+  ],
+  data: [
+    {
+      ecode: 'E06000001',
+      data: '7',
+    }
+  ]
+});
+
+
+Grid.applyTheme('striped'); // Call API of static method
+instance.on('afterChange', function() {draw_graph(instance.getData());});
+</script>
+
+
+        </main>
+      </div>
+    
+
+    
+      <footer class="govuk-footer">
+  <div class="govuk-width-container">
+    
+    <div class="govuk-footer__meta">
+      <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          class="govuk-footer__licence-logo"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 483.2 195.7"
+          height="17"
+          width="41"
+        >
+          <path
+            fill="currentColor"
+            d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+          />
+        </svg>
+        <span class="govuk-footer__licence-description">
+        
+          All content is available under the
+          <a
+            class="govuk-footer__link"
+            href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+            rel="license"
+          >Open Government Licence v3.0</a>, except where otherwise stated
+        
+        </span>
+      </div>
+      <div class="govuk-footer__meta-item">
+        <a
+          class="govuk-footer__link govuk-footer__copyright-logo"
+          href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+        >
+        
+          © Crown copyright
+        
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    
+
+    
+  
+  <script type="module" src="/javascripts/govuk-frontend.min.js"></script>
+  <script type="module">
+    import { initAll } from '/javascripts/govuk-frontend.min.js'
+    initAll()
+  </script>
+
+  </body>
+</html>
