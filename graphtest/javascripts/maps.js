@@ -34,7 +34,7 @@ const legend_settings = {
   };
 
 
-const map_loc = "/assets/maps/"
+const map_loc = "/graphtest/assets/maps/"
 const map_data = {
     "district" : {'2024': {"file": "LAD_2024.geojson",
                     "nameid": "LAD24NM",
