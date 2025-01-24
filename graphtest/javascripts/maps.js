@@ -2,7 +2,7 @@
 
   // map ratio is 277.61 x 424.52
 
-import {d3, Grid, data_check, graph_tools, msgBox} from '/bundle.js';
+import {d3, Grid, data_check, graph_tools, msgBox} from '/graphtest/bundle.js';
 
 // Default data
 const w = 266.61*3;
