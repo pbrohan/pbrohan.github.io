@@ -18,6 +18,10 @@ Peter's Graph Builder
 
     
   <link rel="stylesheet" href="/graphtest/stylesheets/main.css">
+  <script type="module">
+    import {d3, Grid, initAll} from '/bundle.js';
+    window.initAll = initAll; 
+  </script>
 
     
   </head>
@@ -48,9 +52,10 @@ Peter's Graph Builder
         <main class="govuk-main-wrapper" id="main-content">
           
   <h1 class="govuk-heading-xl">Home Page</h1>
-    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
-<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
-
+    <!--link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" /-->
+    
+    
+    
 <h3> Instructions </h3>
 <p>Click "Show table" to show the input table. Paste your data into the table. Your
 data should consist of one column which is Ecodes (I will write a better explanation
@@ -68,162 +73,158 @@ expand to accommodate the number of rows you have.</p>
  <div id = 'grid'></div>
 </details>
 
-Here is a map
+<div id = 'settings-pane' style = "display:flex">
+  <form id = "map-settings">
+  <div id = 'level-menu'>
+
+
+    
+
+
+
+<div class="govuk-form-group">
+  <label class="govuk-label" for="map-type">
+    LA Level
+  </label>
+
+
+
+  <select class="govuk-select" id="map-type" name="map-type">
+  
+    
+    <option value="county" selected>County</option>
+    
+  
+    
+    <option value="district">District</option>
+    
+  
+  </select>
+
+</div>
+
+  </div>
+  <div id = 'year-menu'>
+        
+
+
+
+<div class="govuk-form-group">
+  <label class="govuk-label" for="map-year">
+    Data Financial Year
+  </label>
+
+
+
+  <select class="govuk-select" id="map-year" name="map-year">
+  
+    
+    <option value="2023" selected>2023/24</option>
+    
+  
+    
+    <option value="2022">2023/23</option>
+    
+  
+  </select>
+
+</div>
+
+    </div>
+    <div id = 'inset-checkbox'>
+      
+
+
+
+
+<div class="govuk-form-group">
+
+  <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+    
+    
+      
+  
+  
+    
+    
+    
+    
+    
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="london-inset" name="london-inset" type="checkbox" value="use-inset">
+      <label class="govuk-label govuk-checkboxes__label" for="london-inset">
+        Include London inset
+      </label>
+      
+    </div>
+    
+  
+
+    
+    
+  </div>
+
+</div>
+
+      
+
+
+
+
+<div class="govuk-form-group">
+
+  <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+    
+    
+      
+  
+  
+    
+    
+    
+    
+    
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="shetland-inset" name="shetland-inset" type="checkbox" value="use-inset">
+      <label class="govuk-label govuk-checkboxes__label" for="shetland-inset">
+        Include Shetland inset
+      </label>
+      
+    </div>
+    
+  
+
+    
+    
+  </div>
+
+</div>
+
+    </div>
+    </form>
+  </div>
+
+
+  
+    
+  
+
+<button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" id="map-dl">
+  Download Graph
+</button>
+
+
 <div id = 'map'></div>
 
+
+
+
 <script type = "module">
-  import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-  // Declare the chart dimensions and margins.
-const width = 640;
-const height = 400;
-const marginTop = 20;
-const marginRight = 20;
-const marginBottom = 30;
-const marginLeft = 40;
-
-const container = document.getElementById('map');
-
-
-// Map and projection
-var projection = d3.geoMercator()
-  .scale(1300)
-  .center([0, 54]);
-var path = d3.geoPath().projection(projection);
-
-
-function draw_graph(data) {
-  // Create the SVG container.
-  const svg = d3.create("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-  var ecodes = [];
-  for (let d in data) {
-    ecodes.push(data[d].ecode );
-  }
-
-  // Create a lookup table for data by ecode
-  const dataLookup = Object.fromEntries(
-    data.map(line => [
-        line.ecode.trim(), // Trim the `ecode` key if necessary
-        Object.fromEntries(
-            Object.entries(line).map(([key, value]) => 
-                typeof value === 'string' ? [key, value.trim()] : [key, value]
-            )
-        )
-    ])
-  );
-
-  // temporary easy scale
-  console.log(get_table_range(dataLookup))
-
-  var linearscale = d3.scaleSequential(get_table_range(data), d3.interpolateBlues)
-
-  d3.json("/graphtest/assets/maps/LAD_2024.geojson").then(
-    (map) => {
-      // Filter features to include only those with finite bounding boxes
-      var validFeatures = map.features.filter((feature) => {
-        var truth = in_bounds(feature);
-        return in_bounds(feature)
-      });
-
-    var join_errors = [];
-
-      // left join the map with the data
-      // (this seems to do a lot of reads....)
-
-
-      // Map over validFeatures and enrich them with data if a match is found
-      validFeatures = validFeatures.flatMap(feature => {
-        const matchedData = dataLookup[feature.properties.LAD24CD];
-        if (matchedData) {
-            // Return the feature with the matched data
-            return { ...feature, data: { ...matchedData } };
-        } else {
-            // Return the feature as is
-            return feature;
-        }
-      });
-      // Draw the map
-      svg.append("g")
-        .selectAll("path")
-        .data(validFeatures)
-        .enter().append("path")
-          .attr("d", path)        
-          .style("stroke", "#000") // Black stroke for visibility
-          .style("fill", function(d) {
-            if ('data' in d) {
-              return linearscale(d.data.data)
-            } else {
-              return "none"
-            }
-              
-            }); 
-});
-
-function get_table_range(data) {
-  var min = 0, max = 0;
-  for (let d in data) {
-    if (data[d].data < min) {
-      min = data[d].data;
-    }
-    if (data[d].data > max) {
-      max = data[d].data;
-    }
-  }
-  return [min, max]
-}
-
-// Append the SVG element.
-container.innerHTML = "";
-container.append(svg.node());
-}
-
-// Check if a feature is in bounds (this is the source of much jank and points
-// to a more fundamental problem with the geojson files that I should fix later)
-function in_bounds(feature) {
-  var bounds = path.bounds(feature)
-  if (bounds[0][0] < 0 | bounds[0][1] < 0) {
-    return false
-  }
-  if (bounds[1][0] > 640 | bounds[1][1] > 480) {
-    return false
-  }
-  if (!(bounds.every((point) => point.every((coordinate) => isFinite(coordinate))))) {
-    return false
-  }
-  return true
-}
-
-    const Grid = tui.Grid;
-    const instance = new Grid({
-  usageStatistics: false, // Don't use google analytics
-  el: document.getElementById('grid'), // Container element
-  scrollX : false,
-  scrollY : false,
-  columns: [
-    {
-      header: 'Ecode',
-      name: 'ecode',
-      editor: 'text',
-    },
-    {
-      header: 'Data',
-      name: 'data',
-      editor: 'text',
-    },
-  ],
-  data: [
-    {
-      ecode: 'E06000001',
-      data: '7',
-    }
-  ]
-});
-
-
-Grid.applyTheme('striped'); // Call API of static method
-instance.on('afterChange', function() {draw_graph(instance.getData());});
+  import {initAll} from '/graphtest/bundle.js';
+  initAll();
+  import('./graphtest/javascripts/maps.js').then(module => {
+    module.initMapPage()
+  })
 </script>
 
 
@@ -281,9 +282,7 @@ instance.on('afterChange', function() {draw_graph(instance.getData());});
 
     
   
-  <script type="module" src="/graphtest/javascripts/govuk-frontend.min.js"></script>
-  <script type="module">
-    import { initAll } from '/javascripts/govuk-frontend.min.js'
+  <script type = "module">
     initAll()
   </script>
 
