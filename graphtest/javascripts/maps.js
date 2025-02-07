@@ -2,7 +2,7 @@
 
   // map ratio is 277.61 x 424.52
 
-import {d3, Grid, data_check, graph_tools, msgBox} from '/graphtest/bundle.js';
+import {d3, Grid, data_check, graph_tools, msgBox, colours} from '/graphtest/bundle.js';
 
 // Default data
 const w = 266.61*3;
@@ -25,7 +25,6 @@ const height = h + 20;
 const marginTop = 200;
 const marginRight = 20;
 const marginBottom = 30;
-
 
 const legend_offset = [4 * marginLeft, h * 7/10]
 const legend_settings = {
@@ -89,12 +88,65 @@ function get_map_page_state() {
     const data = data_table.getData();
     const la_level = document.getElementById('map-type').value;
     const data_year = document.getElementById('map-year').value;
-    // Currently this isn't the value of the checkbox
     const inset = {"london": document.getElementById('london-inset').checked,
                    "shetland": document.getElementById('shetland-inset').checked,
      };
-    return [data, la_level, data_year, inset]
-}
+    // find out which palette is selected and use the text from that as the key
+    const org_list = document.getElementById("org_list");
+    const colour_selected = document.querySelector(
+        ".palette-cell__selected > .palette-text")
+    // Check that the colour name is valid, else pick the primary colour
+    let colour;
+    if ( colour_selected ) {
+        if (Object.keys(colours[org_list.value].light).includes(colour_selected.textContent)) {
+            colour = colours[org_list.value].light[colour_selected.textContent];
+        } else {
+            colour = colours[org_list.value].primary;
+        }
+    } else {
+            colour = colours[org_list.value].primary;
+        }
+
+    return [data, la_level, data_year, inset, colour]
+    }
+
+/**
+ * Function to create a table element in memory
+ * @param {Object} data - The object containing the table data
+ * @returns {HTMLTableElement} - The generated table element
+ */
+function createTable(data) {
+    const table = document.createElement('table');
+    
+    // Create the table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    Object.keys(data).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    // Find the longest array length
+    const maxRows = Math.max(...Object.values(data).map(arr => arr.length));
+
+    // Create the table body
+    const tbody = document.createElement('tbody');
+    for (let i = 0; i < maxRows; i++) {
+        const row = document.createElement('tr');
+        Object.keys(data).forEach(key => {
+        const cell = document.createElement('td');
+        cell.textContent = data[key][i] !== undefined ? data[key][i] : ''; // Fill with empty string if no value
+        row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+
+    return table; // Return the table element
+    }
 
 
 /**
@@ -106,24 +158,56 @@ function get_map_page_state() {
  * @param {boolean} inset 
  * @returns {null}
  */
-function draw_map(container, width, height, data, la_level, data_year, inset){
+function draw_map(container, width, height, data, la_level, data_year, inset, colour){
     const path = setupMapProjection();
     const svg = createSvgElement(width, height);
     const dataLookup = createDataLookup(data);
     let data_level
+    container.innerHTML = "";
+    // Find duplicate rows
+    try{
+        data_check.check_duplicate_rows(data, "ecode");
+    } catch (error) {
+        if (error instanceof data_check.DuplicateRow) {
+            const lst = document.createElement("ul");
+            for (let r in error.rows){
+                const el = document.createElement("li");
+                el.textContent = error.rows[r];
+                lst.appendChild(el);
+            }
+            const errorbox = document.createElement('div');
+            const text = document.createElement('p')
+                text.textContent = "You have entered duplicate Ecodes";
+            errorbox.appendChild(text);
+            errorbox.appendChild(lst);
+            msgBox("Duplicate Ecode", errorbox);
+            container.innerHTML = "";
+            return -1;
+        }
+    }
+
     try {
     data_level = getDataLevel(dataLookup, la_level);
     } catch (error) {
         if (error instanceof data_check.EcodeParseError) {
-            msgBox("Ecode Error", "You have entered Ecodes from both counties and districts")
+            const tbl = createTable(error.ecodes);
+            const errorbox = document.createElement('div')
+            const text = document.createElement('p')
+                text.textContent = "You have entered Ecodes from both counties and districts"
+            errorbox.appendChild(text);
+            errorbox.appendChild(tbl);
+            msgBox("Ecode Error", errorbox)
+            container.innerHTML = "";
         }
         return 0;
     }
-    const { file, name_id, ecodeid } = getMapDataAttributes(data_level, data_year)
+    const { file, nameid, ecodeid } = getMapDataAttributes(data_level, data_year)
 
     // create the scale (should be custom)
-    const linearscale = d3.scaleSequential(get_table_range(data), d3.interpolateBlues)
-    downloadAndProcessMapData(file, path, dataLookup, ecodeid, linearscale, svg, inset);
+    const linearscale = d3.scaleSequential(get_table_range(data), d3.interpolate(
+        "rbg(0,0,0)", "rgb(" + colour[0] +"," + colour[1] + "," + colour[2], ")"
+    ))
+    downloadAndProcessMapData(file, path, dataLookup, ecodeid, nameid, linearscale, svg, inset, container);
 
     svg.append("g")
         .attr("transform", `translate(${legend_offset[0]}, ${legend_offset[1]})`)
@@ -134,7 +218,6 @@ function draw_map(container, width, height, data, la_level, data_year, inset){
                 .attr("font-family", "arial"));
 
     // Append the SVG element.
-    container.innerHTML = "";
     container.append(svg.node());
 
 };
@@ -142,7 +225,8 @@ function setupMapProjection() {
     // Define map scale, projection and location
     return d3.geoPath(d3.geoMercator()
         .center(mapcentre)
-        .scale(mapscale));
+        .scale(mapscale)
+        .clipExtent([[0,0], [width, height]]));
 
 }
 
@@ -208,7 +292,9 @@ function getMapDataAttributes(data_level, data_year) {
     };
 }
 
-function downloadAndProcessMapData(file, path, dataLookup, ecodeid, linearscale, svg, inset) {
+
+
+function downloadAndProcessMapData(file, path, dataLookup, ecodeid, nameid, linearscale, svg, inset, container) {
     d3.json(file).then(map => {
         const dataFeatures = map.features
             .flatMap(feature => {
@@ -219,10 +305,18 @@ function downloadAndProcessMapData(file, path, dataLookup, ecodeid, linearscale,
                     return feature;
                 }
             });
-        drawMap(dataFeatures.filter(feature => in_bounds(path, feature)),
+
+        // Make tooltip
+        const tooltip = document.createElement("div");
+        tooltip.classList.add("map-tooltip");
+        container.appendChild(tooltip);
+        
+        drawMap(dataFeatures,
                 path,
                 linearscale,
-                svg)
+                svg,
+                nameid,
+                tooltip)
 
         if (inset.london) {
             const londonFeatures = dataFeatures.filter(feature => {
@@ -234,7 +328,9 @@ function downloadAndProcessMapData(file, path, dataLookup, ecodeid, linearscale,
                 london_mapcentre,
                 london_mapscale,
                 london_bounding_box_padding,
-                svg
+                svg,
+                nameid,
+                tooltip
             );
         }
         if (inset.shetland) {
@@ -247,37 +343,66 @@ function downloadAndProcessMapData(file, path, dataLookup, ecodeid, linearscale,
                 shetland_mapcentre,
                 shetland_mapscale,
                 shetland_bounding_box_padding,
-                svg
+                svg,
+                nameid,
+                tooltip
             );
         }
     });
 }
 
-function drawMap(features, path, linearscale, svg){
+function drawMap(features, path, linearscale, svg, nameid, tooltip){
     svg.append("g")
         .selectAll("path")
         .data(features)
         .enter()
         .append("path")
-        .attr("d", path)
+        .attr("d", d => {
+            let p = path(d)
+            if (p) p = removeExtraBox(p, width, height);
+            return p;
+            })
         .style("stroke-width", linewidth)
         .style("stroke", "#000")
         .style("fill", d => {
             if ('data' in d) {
                 return linearscale(d.data.data);
             } else {
-                return "none";
+                return "white";
             }
-        });
+        })
+        .on("mouseover", (event) => la_mouseover(event, tooltip))
+        .on("mouseleave", (event) => la_mouseleave(event, tooltip))
+        .on("mousemove", (event) => la_mousemove(event, tooltip, nameid));
+}
+
+// Tooltip functions
+function la_mouseover(event, tooltip) {
+    tooltip.style.opacity = 1;
+    event.target.style.strokeWidth = linewidth * 3;
+}
+
+function la_mousemove(event, tooltip, nameid) {
+    let event_value = "-";
+    if ('data' in event.target.__data__) {
+        event_value = event.target.__data__.data.data;
+    }
+    tooltip.innerHTML = event.target.__data__.properties[nameid] + ": " + event_value;
+    tooltip.style.left = event.pageX + 15 + "px";
+    tooltip.style.top = event.pageY +  "px";
+}
+
+function la_mouseleave(event, tooltip) {
+    tooltip.style.opacity = 0;
+    event.target.style.strokeWidth = linewidth;
 }
 
 
-
-
-function addInset(features, linearscale, mapcentre, mapscale, padding, svg){
+function addInset(features, linearscale, mapcentre, mapscale, padding, svg, nameid, tooltip){
     const path = d3.geoPath(d3.geoMercator()
             .center(mapcentre)
-            .scale(mapscale));
+            .scale(mapscale)
+            );
    
     // get bounds of inset
     var bounds = [[Infinity,Infinity],[0,0]];
@@ -313,16 +438,23 @@ function addInset(features, linearscale, mapcentre, mapscale, padding, svg){
         .data(features)
         .enter()
         .append("path")
-        .attr("d", path)
+        .attr("d", d => {
+            let p = path(d)
+            if (p) p = removeExtraBox(p, width, height);
+            return p;
+            })
         .style("stroke-width", linewidth)
         .style("stroke", "#000")
         .style("fill", d => {
             if ('data' in d) {
                 return linearscale(d.data.data);
             } else {
-                return "none";
+                return "white";
             }
-        });
+        })
+        .on("mouseover", (event) => la_mouseover(event, tooltip))
+        .on("mouseleave", (event) => la_mouseleave(event, tooltip))
+        .on("mousemove", (event) => la_mousemove(event, tooltip, nameid));
 
 
     // draw a square around inset
@@ -335,40 +467,79 @@ function addInset(features, linearscale, mapcentre, mapscale, padding, svg){
         .style("fill", "none")
 }
 
-// Check if a feature is in bounds (this is the source of much jank and points
-// to a more fundamental problem with the geojson files that I should fix later)
-function in_bounds(path, feature) {
-    const bounds = path.bounds(feature)
-    if (bounds[0][0] < 0 | bounds[0][1] < 0) {
-    return false
+// remove extra bounding boxes that the transformation seems to add
+function removeExtraBox(pathString, width, height){
+    const pattern = new RegExp(
+        `M0,0L${width},0L${width},${height}L0,${height}Z`,
+        "i"
+    );
+    return pathString.replace(pattern, "")
+}
+
+function set_palette(el) {
+    var map_colours = colours[el.value]
+    // if palette is loaded successfuly, change the header tint to the correct
+    // colour
+    if (map_colours) {
+        if (map_colours) {
+            document.querySelector(".graph-header").style.setProperty("border-bottom", 
+                "10px solid rgb(" + map_colours.primary + ")" // Javascript is awful
+            )
+        }
     }
-    if (bounds[1][0] > width | bounds[1][1] > height) {
-    return false
-    }
-    if (!(bounds.every((point) => point.every((coordinate) => isFinite(coordinate))))) {
-    return false
-    }
-    return true
-};
+    // Also set palette options when built
+    const palette = [...document.querySelectorAll(".palette-cell")];
+    let set_selected = true;
+    palette.forEach(cell => {
+        if (set_selected) {
+            cell.classList.add("palette-cell__selected");
+            set_selected = false;
+        }
+        cell.addEventListener("click", (event) => {
+            select_palette_colour(event.currentTarget);
+            make_map_if_data();
+        })
+    })
+
+}
+
+function make_map_if_data() {
+    const state = get_map_page_state();
+    // If user has entered data in the table, draw the map
+    if (state[0].length > 0) {
+        draw_map(
+            document.getElementById('map'), width, height, ...state
+        );
+    };
+}
+
+function select_palette_colour(el) {
+    // Remove element from currently selected palettes
+    const selected = [...document.querySelectorAll(".palette-cell__selected")];
+    selected.forEach(cell => {
+        cell.classList.remove("palette-cell__selected");
+    });
+    el.classList.add("palette-cell__selected");
+}
+
 
 export function initMapPage() {
     add_grid(document.getElementById('grid'));
 
-        const map_settings = document.getElementById("map-settings");
+    const map_settings = document.getElementById("map-settings");
+    const org_list = document.getElementById("org_list");
 
-        map_settings.addEventListener("change", (event) => {
-            const state = get_map_page_state();
-            // If user has entered data in the table, draw the map
-            if (state[0].length > 0) {
-                
-                draw_map(
-                    document.getElementById('map'), width, height, ...state
-                );
-            };
+    set_palette(org_list);
 
-        });
+    org_list.addEventListener("change", (event) => {
+        set_palette(event.target);
+        make_map_if_data();
+    })
 
-        document.getElementById("map-dl").addEventListener("click", () => {
-            console.log(document.querySelector('#map > svg'));
-            graph_tools.download_svg(document.querySelector('#map > svg'))})
+    map_settings.addEventListener("change", (event) => {
+        make_map_if_data();
+    });
+
+    document.getElementById("map-dl").addEventListener("click", () => {
+        graph_tools.download_svg(document.querySelector('#map > svg'))})
 };

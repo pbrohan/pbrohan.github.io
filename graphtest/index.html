@@ -17,11 +17,8 @@ Peter's Graph Builder
     
 
     
+
   <link rel="stylesheet" href="/graphtest/stylesheets/main.css">
-  <script type="module">
-    import {d3, Grid, initAll} from '/graphtest/bundle.js';
-    window.initAll = initAll; 
-  </script>
 
     
   </head>
@@ -36,12 +33,37 @@ Peter's Graph Builder
 
     
 <header class="govuk-header" data-module="govuk-header">
-  <div class="govuk-header__container govuk-width-container">
+  <div class="govuk-header__container govuk-width-container graph-header">
     <div class="govuk-header__logo">
       <a href="#" class="govuk-header__link govuk-header__link--homepage">
         Peter&#39;s Graph Builder
       </a>
     </div>
+    
+      
+      
+      
+    
+
+    
+
+
+
+<div class="govuk-form-group">
+  
+
+
+
+  <select class="govuk-select" id="org_list" name="org_list">
+  
+    
+    <option value="MHCLG">MHCLG</option>
+    
+  
+  </select>
+
+</div>
+
   </div>
 </header>
 
@@ -57,7 +79,7 @@ Peter's Graph Builder
     
     
 <h3> Instructions </h3>
-<p>Click "Show table" to show the input table. Paste your data into the table. Your
+<p>Click "Show table" to show the input table. Click on the table and paste your data into it. Your
 data should consist of one column which is Ecodes (I will write a better explanation
 later) and one column of values for those Ecodes. The table will automatically 
 expand to accommodate the number of rows you have.</p>
@@ -68,17 +90,17 @@ expand to accommodate the number of rows you have.</p>
   probably many bugs.
 </p>
 
-<details>
-  <summary>Show table</summary>
+
+<details class="table-holder-details">
+  <summary class="table-holder">Show input table</summary>
  <div id = 'grid'></div>
 </details>
 
-<div id = 'settings-pane' style = "display:flex">
+<div id = 'settings-pane'>
+  <div id = 'map-settings-container' class = 'settings-container'>
   <form id = "map-settings">
-  <div id = 'level-menu'>
-
-
-    
+    <div id = 'level-menu'>
+      
 
 
 
@@ -103,9 +125,9 @@ expand to accommodate the number of rows you have.</p>
 
 </div>
 
-  </div>
-  <div id = 'year-menu'>
-        
+    </div>
+    <div id = 'year-menu'>
+      
 
 
 
@@ -131,7 +153,7 @@ expand to accommodate the number of rows you have.</p>
 </div>
 
     </div>
-    <div id = 'inset-checkbox'>
+    <div id = 'london-checkbox' class = "settings-checkbox">
       
 
 
@@ -153,7 +175,7 @@ expand to accommodate the number of rows you have.</p>
     <div class="govuk-checkboxes__item">
       <input class="govuk-checkboxes__input" id="london-inset" name="london-inset" type="checkbox" value="use-inset">
       <label class="govuk-label govuk-checkboxes__label" for="london-inset">
-        Include London inset
+        London inset
       </label>
       
     </div>
@@ -166,6 +188,8 @@ expand to accommodate the number of rows you have.</p>
 
 </div>
 
+    </div>
+    <div id = 'shetland-checkbox' class = "settings-checkbox">
       
 
 
@@ -187,7 +211,7 @@ expand to accommodate the number of rows you have.</p>
     <div class="govuk-checkboxes__item">
       <input class="govuk-checkboxes__input" id="shetland-inset" name="shetland-inset" type="checkbox" value="use-inset">
       <label class="govuk-label govuk-checkboxes__label" for="shetland-inset">
-        Include Shetland inset
+        Shetland inset
       </label>
       
     </div>
@@ -201,8 +225,34 @@ expand to accommodate the number of rows you have.</p>
 </div>
 
     </div>
-    </form>
+  </form>
   </div>
+  <div id = 'palette' class="palette">
+    
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(255, 93, 136);"></div><span class = "palette-text">pink</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(221, 50, 48);"></div><span class = "palette-text">red</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(250, 163, 50);"></div><span class = "palette-text">orange</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(154, 184, 60);"></div><span class = "palette-text">green</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(8, 179, 213);"></div><span class = "palette-text">blue</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(135, 135, 192);"></div><span class = "palette-text">indigo</span></div>
+    
+      <div class = "palette-cell">
+        <div class = "palette-preview" style="background-color: rgb(153, 152, 143);"></div><span class = "palette-text">grey</span></div>
+     
+  </div>
+</div>
 
 
   
@@ -220,8 +270,6 @@ expand to accommodate the number of rows you have.</p>
 
 
 <script type = "module">
-  import {initAll} from '/graphtest/bundle.js';
-  initAll();
   import('/graphtest/javascripts/maps.js').then(module => {
     module.initMapPage()
   })
@@ -283,6 +331,7 @@ expand to accommodate the number of rows you have.</p>
     
   
   <script type = "module">
+    import {initAll} from "/graphtest/bundle.js";
     initAll()
   </script>
 

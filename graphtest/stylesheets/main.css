@@ -543,7 +543,7 @@
   }
 }
 
-.govuk-body, .govuk-body-m {
+.govuk-body, .palette-cell, .table-holder, .govuk-body-m {
   color: #0b0c0c;
   font-family: arial;
   -webkit-font-smoothing: antialiased;
@@ -555,34 +555,34 @@
   margin-bottom: 15px;
 }
 @media print {
-  .govuk-body, .govuk-body-m {
+  .govuk-body, .palette-cell, .table-holder, .govuk-body-m {
     color: #000000;
   }
 }
 @media print {
-  .govuk-body, .govuk-body-m {
+  .govuk-body, .palette-cell, .table-holder, .govuk-body-m {
     font-family: sans-serif;
   }
 }
 @media (min-width: 40.0625em) {
-  .govuk-body, .govuk-body-m {
+  .govuk-body, .palette-cell, .table-holder, .govuk-body-m {
     font-size: 1.1875rem;
     line-height: 1.3157894737;
   }
 }
 @media print {
-  .govuk-body, .govuk-body-m {
+  .govuk-body, .palette-cell, .table-holder, .govuk-body-m {
     font-size: 14pt;
     line-height: 1.15;
   }
 }
 @media (min-width: 40.0625em) {
-  .govuk-body, .govuk-body-m {
+  .govuk-body, .palette-cell, .table-holder, .govuk-body-m {
     margin-bottom: 20px;
   }
 }
 
-.govuk-body-s {
+.govuk-body-s, .map-tooltip {
   color: #0b0c0c;
   font-family: arial;
   -webkit-font-smoothing: antialiased;
@@ -594,29 +594,29 @@
   margin-bottom: 15px;
 }
 @media print {
-  .govuk-body-s {
+  .govuk-body-s, .map-tooltip {
     color: #000000;
   }
 }
 @media print {
-  .govuk-body-s {
+  .govuk-body-s, .map-tooltip {
     font-family: sans-serif;
   }
 }
 @media (min-width: 40.0625em) {
-  .govuk-body-s {
+  .govuk-body-s, .map-tooltip {
     font-size: 1rem;
     line-height: 1.25;
   }
 }
 @media print {
-  .govuk-body-s {
+  .govuk-body-s, .map-tooltip {
     font-size: 14pt;
     line-height: 1.2;
   }
 }
 @media (min-width: 40.0625em) {
-  .govuk-body-s {
+  .govuk-body-s, .map-tooltip {
     margin-bottom: 20px;
   }
 }
@@ -669,35 +669,45 @@
   }
 }
 
-.govuk-body-m + .govuk-heading-l, .govuk-body + .govuk-heading-l,
+.govuk-body-m + .govuk-heading-l, .govuk-body + .govuk-heading-l, .palette-cell + .govuk-heading-l, .table-holder + .govuk-heading-l,
 .govuk-body-s + .govuk-heading-l,
+.map-tooltip + .govuk-heading-l,
 .govuk-list + .govuk-heading-l {
   padding-top: 15px;
 }
 @media (min-width: 40.0625em) {
-  .govuk-body-m + .govuk-heading-l, .govuk-body + .govuk-heading-l,
+  .govuk-body-m + .govuk-heading-l, .govuk-body + .govuk-heading-l, .palette-cell + .govuk-heading-l, .table-holder + .govuk-heading-l,
   .govuk-body-s + .govuk-heading-l,
+  .map-tooltip + .govuk-heading-l,
   .govuk-list + .govuk-heading-l {
     padding-top: 20px;
   }
 }
 
-.govuk-body-m + .govuk-heading-m, .govuk-body + .govuk-heading-m,
+.govuk-body-m + .govuk-heading-m, .govuk-body + .govuk-heading-m, .palette-cell + .govuk-heading-m, .table-holder + .govuk-heading-m,
 .govuk-body-s + .govuk-heading-m,
+.map-tooltip + .govuk-heading-m,
 .govuk-list + .govuk-heading-m,
 .govuk-body-m + .govuk-heading-s,
 .govuk-body + .govuk-heading-s,
+.palette-cell + .govuk-heading-s,
+.table-holder + .govuk-heading-s,
 .govuk-body-s + .govuk-heading-s,
+.map-tooltip + .govuk-heading-s,
 .govuk-list + .govuk-heading-s {
   padding-top: 5px;
 }
 @media (min-width: 40.0625em) {
-  .govuk-body-m + .govuk-heading-m, .govuk-body + .govuk-heading-m,
+  .govuk-body-m + .govuk-heading-m, .govuk-body + .govuk-heading-m, .palette-cell + .govuk-heading-m, .table-holder + .govuk-heading-m,
   .govuk-body-s + .govuk-heading-m,
+  .map-tooltip + .govuk-heading-m,
   .govuk-list + .govuk-heading-m,
   .govuk-body-m + .govuk-heading-s,
   .govuk-body + .govuk-heading-s,
+  .palette-cell + .govuk-heading-s,
+  .table-holder + .govuk-heading-s,
   .govuk-body-s + .govuk-heading-s,
+  .map-tooltip + .govuk-heading-s,
   .govuk-list + .govuk-heading-s {
     padding-top: 10px;
   }
@@ -7711,11 +7721,15 @@
 
 
 
-#settings-pane > form {
+.settings-container {
   display: flex;
 }
 
-#settings-pane > form > div {
+.settings-container > form {
+  display: flex;
+}
+
+.settings-container > form > div {
   padding-right: 2em;
 }
 
@@ -7728,6 +7742,35 @@
   transform: translateX(-50%);
   border: 5px solid #d4351c;
   background-color: #d4351c;
+  z-index: 16;
+}
+
+.msg-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.msg-box thead {
+  border-bottom: 2px solid black;
+}
+
+.msg-box tbody {
+  font-weight: 100;
+  border-left: 0px;
+}
+
+.msg-box tbody td {
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  text-align: center;
+}
+
+.msg-box table td:first-child {
+  border-left: none;
+}
+
+.msg-box table tr td:last-child {
+  border-right: none;
 }
 
 .msg-box-title {
@@ -7765,6 +7808,91 @@
   .msgbox {
     width: 100%;
   }
+}
+/* Align the header correctly */
+.govuk-header__logo {
+  width: unset;
+}
+
+.graph-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+div.graph-header > div.govuk-form-group {
+  margin-bottom: 10px;
+  justify-self: end;
+}
+
+.palette {
+  display: flex;
+  background-color: black;
+  margin-bottom: 10px;
+}
+
+.palette-cell {
+  display: flex;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-left: 2px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.palette-cell__selected {
+  background-color: #5694ca;
+  color: white;
+}
+
+.palette-preview {
+  width: 10px;
+  height: 10px;
+  border: 2px solid black;
+}
+
+.palette-text {
+  margin-bottom: 0px;
+  padding-left: 0.5em;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.map-tooltip {
+  background-color: white;
+  position: absolute;
+  z-index: 30;
+  padding: 0.2em;
+  max-width: 300px;
+  border: 2px solid black;
+}
+
+.table-holder-details {
+  margin-bottom: 30px;
+  border-bottom: 2px solid black;
+}
+
+.table-holder {
+  margin: unset;
+  border: 2px black solid;
+  padding: 0.2em;
+  background-color: #00703c;
+  color: #ffffff;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 2px 0 rgb(0, 44.8, 24);
+}
+
+.settings-checkbox {
+  margin-top: 25px;
 }
 
 /*# sourceMappingURL=main.css.map */
