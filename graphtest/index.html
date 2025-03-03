@@ -9,16 +9,16 @@ Peter's Graph Builder
     <meta name="theme-color" content="#0b0c0c">
 
     
-      <link rel="icon" sizes="48x48" href="/graphtest/assets/images/favicon.ico">
-      <link rel="icon" sizes="any" href="/graphtest/assets/images/favicon.svg" type="image/svg+xml">
-      <link rel="mask-icon" href="/graphtest/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
-      <link rel="apple-touch-icon" href="/graphtest/assets/images/govuk-icon-180.png">
-      <link rel="manifest" href="/graphtest/assets/manifest.json">
+      <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico">
+      <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml">
+      <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c">
+      <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png">
+      <link rel="manifest" href="/assets/manifest.json">
     
 
     
 
-  <link rel="stylesheet" href="/graphtest/stylesheets/main.css">
+  <link rel="stylesheet" href="/stylesheets/main.css">
 
     
   </head>
@@ -78,6 +78,7 @@ Peter's Graph Builder
     
     
     
+    
 <h3> Instructions </h3>
 <p>Click "Show table" to show the input table. Click on the table and paste your data into it. Your
 data should consist of one column which is Ecodes (I will write a better explanation
@@ -93,6 +94,72 @@ expand to accommodate the number of rows you have.</p>
 
 <details class="table-holder-details">
   <summary class="table-holder">Show input table</summary>
+  <div id = 'data-settings'>
+    <div id = 'data-settings-discrete' class = 'map-data-settings'>
+      <div style="display: flex">
+
+      <div class = "govuk-body-m map-ordinal-display-label">Treat ordinal data as:</div>
+      <form id = "ordinal-settings">
+      
+
+
+
+<div class="govuk-form-group">
+
+  <div class="govuk-radios govuk-radios--inline govuk-radios--small map-ordinal-radios" data-module="govuk-radios">
+    
+    
+      
+  
+    
+    
+    
+    <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="ordinal-state" name="ordinal-state" type="radio" value="unordered" checked>
+      <label class="govuk-label govuk-radios__label" for="ordinal-state">
+        Unordered
+      </label>
+      
+    </div>
+    
+  
+    
+      
+  
+    
+    
+    
+    <div class="govuk-radios__item">
+      <input class="govuk-radios__input" id="ordinal-state-2" name="ordinal-state" type="radio" value="ordered">
+      <label class="govuk-label govuk-radios__label" for="ordinal-state-2">
+        Ordered
+      </label>
+      
+    </div>
+    
+  
+    
+    
+  </div>
+
+</div>
+
+      </div>
+      </form>
+      <div>
+      
+  
+    
+  
+
+<button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" id="grid-clear">
+  Clear Table
+</button>
+
+    </div>
+
+  </div>
+</div>
  <div id = 'grid'></div>
 </details>
 
@@ -105,13 +172,13 @@ expand to accommodate the number of rows you have.</p>
 
 
 <div class="govuk-form-group">
-  <label class="govuk-label" for="map-type">
+  <label class="govuk-label" for="geo-level">
     LA Level
   </label>
 
 
 
-  <select class="govuk-select" id="map-type" name="map-type">
+  <select class="govuk-select" id="geo-level" name="geo-level">
   
     
     <option value="county" selected>County</option>
@@ -145,7 +212,7 @@ expand to accommodate the number of rows you have.</p>
     
   
     
-    <option value="2022">2023/23</option>
+    <option value="2022">2022/23</option>
     
   
   </select>
@@ -264,13 +331,13 @@ expand to accommodate the number of rows you have.</p>
 </button>
 
 
-<div id = 'map'></div>
+<div id = 'map' class = 'graph-container'></div>
 
 
 
 
 <script type = "module">
-  import('/graphtest/javascripts/maps.js').then(module => {
+  import('/javascripts/maps/maps.js').then(module => {
     module.initMapPage()
   })
 </script>
@@ -331,7 +398,7 @@ expand to accommodate the number of rows you have.</p>
     
   
   <script type = "module">
-    import {initAll} from "/graphtest/bundle.js";
+    import {initAll} from "/bundle.js";
     initAll()
   </script>
 

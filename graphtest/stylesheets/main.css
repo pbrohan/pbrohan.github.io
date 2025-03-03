@@ -7721,6 +7721,54 @@
 
 
 
+.lds-ring div {
+  box-sizing: border-box;
+}
+
+.lds-ring {
+  color: black;
+  left: calc(50% - 40px);
+  top: -400px;
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  z-index: 15;
+}
+
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid currentColor;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: currentColor transparent transparent transparent;
+}
+
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .settings-container {
   display: flex;
 }
@@ -7743,6 +7791,11 @@
   border: 5px solid #d4351c;
   background-color: #d4351c;
   z-index: 16;
+}
+
+.msg-box-container {
+  overflow: scroll;
+  max-height: calc(100vh - 250px);
 }
 
 .msg-box table {
@@ -7850,6 +7903,12 @@ div.graph-header > div.govuk-form-group {
   color: white;
 }
 
+.palette-cell__disabled {
+  background-color: #b1b4b6;
+  color: #505a5f;
+  cursor: default;
+}
+
 .palette-preview {
   width: 10px;
   height: 10px;
@@ -7871,6 +7930,7 @@ div.graph-header > div.govuk-form-group {
   padding: 0.2em;
   max-width: 300px;
   border: 2px solid black;
+  opacity: 0;
 }
 
 .table-holder-details {
@@ -7893,6 +7953,31 @@ div.graph-header > div.govuk-form-group {
 
 .settings-checkbox {
   margin-top: 25px;
+}
+
+.map-data-settings {
+  justify-content: space-between;
+  display: flex;
+}
+
+.map-data-settings > :first-child {
+  display: flex;
+}
+
+.map-ordinal-display-label {
+  align-items: center;
+  height: 58px;
+  display: inline-flex;
+  padding-right: 1em;
+}
+
+.map-ordinal-radios {
+  margin-top: 6px;
+}
+
+#grid-clear {
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 /*# sourceMappingURL=main.css.map */
